@@ -1,0 +1,54 @@
+# bin folder
+bin/
+
+# lib folder contents
+lib/*
+
+#data folder
+/data/
+
+#Gtags folders
+GPATH
+GRTAGS
+GTAGS
+
+#Ignore .DS_Store
+.DS_Store
+
+# ignore emacs files
+\#*
+*~
+.#*
+\#*\#
+
+# config folder headers
+config/TestConfig.h
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
