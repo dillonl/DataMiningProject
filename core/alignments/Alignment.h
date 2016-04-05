@@ -19,7 +19,7 @@ namespace dmp
 	{
 	public:
 		typedef std::shared_ptr< Alignment > SharedPtr;
-		static Alignment::SharedPtr CreateAlignment(position pos, const std::vector< InternalKmer >& optimalKmers)
+		static Alignment::SharedPtr CreateAlignment(position pos, const std::vector< InternalKmer > optimalKmers)
 		{
 			return std::make_shared< Alignment >(pos, optimalKmers);
 		}
@@ -27,10 +27,10 @@ namespace dmp
 		position getPosition() override { return this->m_position; }
 		std::vector< InternalKmer > getOptimalKmerSubsets() override { return this->m_optimal_kmer_subsets; }
 
-        Alignment(position pos, const std::vector< InternalKmer >& optimalKmers) :
-            m_position(pos)
+        Alignment(position pos, const std::vector< InternalKmer > optimalKmers) :
+            m_position(pos),
+	        m_optimal_kmer_subsets(optimalKmers)
 		{
-            m_optimal_kmer_subsets = optimalKmers;
 		}
         ~Alignment() {}
 

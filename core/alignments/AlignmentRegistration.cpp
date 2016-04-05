@@ -22,7 +22,7 @@ namespace dmp
 		std::unordered_set< InternalKmer > alignmentKmerSet;
 		for (auto kmer : alignmentPtr->getOptimalKmerSubsets())
 		{
-			// if (!std::get< 1 >(alignmentKmerSet.emplace(kmer))) { continue; }
+			if (!std::get< 1 >(alignmentKmerSet.emplace(kmer))) { continue; }
 			this->m_alignment_ptrs[(uint32_t)kmer].emplace_back(alignmentPtr);
 		}
 	}

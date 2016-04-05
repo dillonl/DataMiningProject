@@ -91,7 +91,6 @@ namespace dmp
 				futureFunctions.emplace_back(futureFunct);
 			}
 		}
-std::cout << "done" << std::endl;
 	}
 
 	void BamAlignmentReader::processReads(BamRegion::SharedPtr bamRegionPtr)
@@ -116,12 +115,19 @@ std::cout << "done" << std::endl;
 			if (kmersNumber > internalKmers.size()) { internalKmers.resize(kmersNumber); }
 			if (AlignmentParser::ParseAlignment(bamAlignmentPtr->QueryBases.c_str(), kmersNumber, internalKmers))
 			{
-                auto alignmentPtr = Alignment::CreateAlignment(bamAlignmentPtr->Position, KmerLookup::Instance()->getOptimalKmerSubset(internalKmers));
+                // auto alignmentPtr = Alignment::CreateAlignment(bamAlignmentPtr->Position, KmerLookup::Instance()->getOptimalKmerSubset(internalKmers));
+				auto optimalKmerSubsets = KmerLookup::Instance()->getOptimalKmerSubset(internalKmers);
+				auto alignmentPtr = std::make_shared< Alignment >(bamAlignmentPtr->Position, optimalKmerSubsets);
+				// auto alignmentPtr = Alignment::CreateAlignment(bamAlignmentPtr->Position, );
 				AlignmentRegistration::Instance()->RegisterAlignment(alignmentPtr);
 			}
 		}
 		bamReader.Close();
 
+		// static std::mutex l;
+		// l.lock();
+		// std::cout << "counter: " << sCounter << std::endl;
+		// l.unlock();
 		// std::cout << "total count: [" << m_kmer_set_ptr->getSetSize() << "] " << counter << " ";
         // bamRegionPtr->print();
 	}
