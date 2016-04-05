@@ -14,11 +14,17 @@ set(DMP_UTIL_SOURCES
 
 set(DMP_ALIGNMENTS_SOURCES
   alignments/BamAlignmentReader.cpp
+  alignments/AlignmentRegistration.cpp
+  )
+
+set(DMP_HASHERS_SOURCES
+  hashers/KmerLookup.cpp
   )
 
 add_library(dmp_core
   ${DMP_UTIL_SOURCES}
   ${DMP_ALIGNMENTS_SOURCES}
+  ${DMP_HASHERS_SOURCES}
   )
 
 SET(CORE_LIB dmp_core CACHE STRING "THE CORE LIBRARY") #add dmp_core and dmp_utils to the list of core libs

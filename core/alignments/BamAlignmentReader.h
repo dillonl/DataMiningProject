@@ -39,6 +39,7 @@ namespace dmp
 
 	public:
         typedef std::shared_ptr< BamAlignmentReader > SharedPtr;
+		static BamAlignmentReader::SharedPtr CreateSharedPtr(const std::string& filePath);
         BamAlignmentReader(const std::string& filePath);
 		~BamAlignmentReader();
 
@@ -48,13 +49,11 @@ namespace dmp
 		/* static std::vector< int > getAllRegionsInBam(const std::string& filePath); */
 
 	private:
-		IKmerSet::SharedPtr processReads(BamRegion::SharedPtr bamRegionPtr);
+		void processReads(BamRegion::SharedPtr bamRegionPtr);
 		std::vector< BamRegion::SharedPtr > getAllSpacedOutRegions();
 
 		std::string m_file_path;
 		std::mutex m_lock;
-		std::vector< IKmerSet::SharedPtr > m_kmer_set_ptrs;
-		std::vector< std::shared_ptr< std::mutex > > m_kmer_mutexes;
 		/* std::unordered_set< InternalKmer, KmerHash, KmerKeyEqual > m_set; */
 	};
 }

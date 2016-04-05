@@ -41,6 +41,3 @@ target_link_libraries(dmp
 	${SCI_BOOST_LIBRARY}
 )
 
-#download test data
-file(DOWNLOAD ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/NA12878/alignment/NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211.bam ${PROJECT_SOURCE_DIR}/data/NA12878.chrom20.bam)
-file(DOWNLOAD ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/NA12878/alignment/NA12878.chrom20.ILLUMINA.bwa.CEU.low_coverage.20121211.bam.bai ${PROJECT_SOURCE_DIR}/data/NA12878.chrom20.bam.bai)

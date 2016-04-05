@@ -20,12 +20,9 @@ namespace dmp
 		{
 			for (auto i = 0; i < kmerIterations; ++i)
 			{
-				// InternalKmer internalKmer = 0; // we must guarentee internalKmer is zero
 				kmers[i] = 0;
 				bool validKmer = true;
 				validKmer &= unroller(i, uint_< KMER_SIZE - 1 >(),  alignment, kmers[i]);
-				// validKmer &= unroller(i, uint_< KMER_SIZE - 1 >(),  alignment, internalKmer);
-				// kmers[i] = internalKmer;
 			}
 			return true;
 		}

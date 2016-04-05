@@ -1,0 +1,7 @@
+#ifndef RUFUS_TESTS_DATAPATHS_H
+#define RUFUS_TESTS_DATAPATHS_H
+
+#define TEST_BAM_FILE "@CMAKE_SOURCE_DIR@/tests/data/test.bam"
+#define TEST_BAM_INDEX_FILE "@CMAKE_SOURCE_DIR@/tests/data/test.bam.bai"
+
+#endif //RUFUS_TESTS_DATAPATHS_H

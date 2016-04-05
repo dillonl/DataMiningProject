@@ -1,6 +1,9 @@
 #include "BamAlignmentReader.h"
 
 #include "containers/KmerSet.hpp"
+#include "hashers/KmerLookup.h"
+#include "Alignment.h"
+#include "AlignmentRegistration.h"
 #include "parsers/AlignmentParser.hpp"
 #include "utils/ThreadPool.hpp"
 
@@ -10,15 +13,14 @@
 
 namespace dmp
 {
-	BamAlignmentReader::BamAlignmentReader(const std::string& filePath) :
+    BamAlignmentReader::SharedPtr BamAlignmentReader::CreateSharedPtr(const std::string& filePath)
+	{
+        return std::make_shared< BamAlignmentReader >(filePath);
+    }
+
+    BamAlignmentReader::BamAlignmentReader(const std::string& filePath) :
 		m_file_path(filePath)
 	{
-		// m_kmer_mutexes.resize(256);
-		for (uint32_t i = 0; i < 256; ++i)
-		{
-			m_kmer_set_ptrs.emplace_back(std::make_shared< KmerSet >());
-			m_kmer_mutexes.emplace_back(std::make_shared< std::mutex >());
-		}
 	}
 
 	BamAlignmentReader::~BamAlignmentReader()
@@ -53,7 +55,6 @@ namespace dmp
 			{
 				uint32_t positionDelta = ((currentPosition + intervalSize) > regionLastPosition) ? (regionLastPosition - currentPosition) : intervalSize - 1;
 				uint32_t endPosition = currentPosition + positionDelta;
-				// if (endPosition != regionLastPosition && endPosition + 10000 > regionLastPosition) { endPosition = regionLastPosition; } // so we don't end up with small regions near the end of the bamregion
 				auto bamRegionPtr = std::make_shared< BamRegion >(regionID, currentPosition, endPosition);
 				regionPtrs.emplace_back(bamRegionPtr);
 				currentPosition += positionDelta + 1;
@@ -69,39 +70,31 @@ namespace dmp
 	{
 		ThreadPool tp;
 		auto spacedOutRegions = getAllSpacedOutRegions();
-		// std::vector< std::shared_ptr< std::future< IKmerSet::SharedPtr > > > futureFunctions;
-		std::deque< std::shared_ptr< std::future< IKmerSet::SharedPtr > > > futureFunctions;
+		std::deque< std::shared_ptr< std::future< void > > > futureFunctions;
 		for (auto regionPtr : spacedOutRegions)
 		{
-			// regionPtr->print();
 			auto funct = std::bind(&BamAlignmentReader::processReads, this, regionPtr);
 			auto futureFunct = tp.enqueue(funct);
 			futureFunctions.emplace_back(futureFunct);
 			static int counter = 0;
-			// if (counter++ >= 75) { break; }
 		}
-		// for (auto& futureFunct : futureFunctions)
 		while (!futureFunctions.empty())
 		{
 			auto futureFunct = futureFunctions.front();
 			futureFunctions.pop_front();
 			if (futureFunct->wait_for(std::chrono::milliseconds(100)) == std::future_status::ready)
 			{
-				// auto kmerSetPtr = futureFunct->get();
-				// std::lock_guard< std::mutex > guard(m_lock);
-				// m_set.insert(set.begin(), set.end());
- 				// m_kmer_set_ptr->addAllKmersToPassedInSet(kmerSetPtr);
 				continue;
 			}
 			else
 			{
 				futureFunctions.emplace_back(futureFunct);
 			}
-			// futureFunct->wait();
 		}
+std::cout << "done" << std::endl;
 	}
 
-	IKmerSet::SharedPtr BamAlignmentReader::processReads(BamRegion::SharedPtr bamRegionPtr)
+	void BamAlignmentReader::processReads(BamRegion::SharedPtr bamRegionPtr)
 	{
 		uint32_t counter = 0;
 		BamTools::BamReader bamReader;
@@ -123,22 +116,13 @@ namespace dmp
 			if (kmersNumber > internalKmers.size()) { internalKmers.resize(kmersNumber); }
 			if (AlignmentParser::ParseAlignment(bamAlignmentPtr->QueryBases.c_str(), kmersNumber, internalKmers))
 			{
-				for (auto i = 0; i < kmersNumber; ++i)
-				{
-					int idx = internalKmers[i] & 0xff;
-					m_kmer_mutexes[idx]->lock();
-					m_kmer_set_ptrs[idx]->addKmer(internalKmers[i]);
-					m_kmer_mutexes[idx]->unlock();
-                    ++counter;
-				}
+                auto alignmentPtr = Alignment::CreateAlignment(bamAlignmentPtr->Position, KmerLookup::Instance()->getOptimalKmerSubset(internalKmers));
+				AlignmentRegistration::Instance()->RegisterAlignment(alignmentPtr);
 			}
 		}
 		bamReader.Close();
 
 		// std::cout << "total count: [" << m_kmer_set_ptr->getSetSize() << "] " << counter << " ";
-        bamRegionPtr->print();
-
-		// return kmerSetPtr;
-		return nullptr;
+        // bamRegionPtr->print();
 	}
 }
