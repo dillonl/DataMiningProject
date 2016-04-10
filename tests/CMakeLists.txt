@@ -7,7 +7,9 @@
 # set header and source files
 set(DMP_TEST_SOURCES
   gtest_main.cpp
-)
+  )
+
+set(CMAKE_BUILD_TYPE Debug) # uncomment this when you need a debug build
 
 # Where Google Test's .h files can be found.
 include_directories(
@@ -36,10 +38,10 @@ add_dependencies(dmp_tests ${BAMTOOLS_PROJECT} Boost_external ${GTEST_PROJECT})
 
 
 target_link_libraries(dmp_tests
-	${BAMTOOLS_LIB}
+    ${CORE_LIB}
+    ${BAMTOOLS_LIB}
    	${BAMTOOLS_UTIL_LIB}
 	${ZLIB_LIB}
-	${CORE_LIB}
 	#${FASTAHACK_LIB}
 	${SCI_BOOST_LIBRARY}
   	${GTEST_LIB}

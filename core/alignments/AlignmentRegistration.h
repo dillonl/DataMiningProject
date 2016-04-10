@@ -2,6 +2,7 @@
 #define CORE_ALIGNMENT_ALIGNMENTREGISTRATION_H
 
 #include "IAlignment.h"
+#include "utils/ThreadPool.hpp"
 
 #include <boost/noncopyable.hpp>
 
@@ -22,8 +23,9 @@ namespace dmp
 			return s_instance;
 		}
 
+		void AggregateAlignmentsThreads(double matchPercent);
 		void RegisterAlignment(IAlignment::SharedPtr alignmentPtr);
-		void AggregateAlignments(double matchPercent);
+		void AggregateAlignments(double matchPercent, InternalKmer kmer);
 		size_t getSize();
 	private:
 		static AlignmentRegistration* s_instance;

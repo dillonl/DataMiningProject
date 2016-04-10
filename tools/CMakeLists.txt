@@ -6,6 +6,8 @@
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/)
 
+set(CMAKE_BUILD_TYPE Debug) # uncomment this when you need a debug build
+
 # set header and source files
 set(DMP_TOOLS_SOURCES
 	dmp.cpp

@@ -14,6 +14,8 @@ namespace
 		std::string path = NA12878_BAM;
 		auto bamAlignmentReader = BamAlignmentReader::CreateSharedPtr(path);
 		bamAlignmentReader->processAllReadsInBam();
+		std::cout << "done reading" << std::endl;
+		AlignmentRegistration::Instance()->AggregateAlignmentsThreads(50);
 		std::cout << "count: " << AlignmentRegistration::Instance()->getSize() << std::endl;
 	}
 }

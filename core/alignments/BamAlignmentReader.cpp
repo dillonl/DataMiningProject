@@ -108,6 +108,8 @@ namespace dmp
 		std::vector< InternalKmer > internalKmers(100);
 		size_t kmerCount = 0;
 
+		// uint32_t count = 0;
+
 		while(bamReader.GetNextAlignment(*bamAlignmentPtr))
 		{
 			if (bamAlignmentPtr->Position < bamRegionPtr->getStartPosition()) { continue; }
@@ -121,6 +123,7 @@ namespace dmp
 				// auto alignmentPtr = Alignment::CreateAlignment(bamAlignmentPtr->Position, );
 				AlignmentRegistration::Instance()->RegisterAlignment(alignmentPtr);
 			}
+			// if (++count >= 50) { break; }
 		}
 		bamReader.Close();
 
