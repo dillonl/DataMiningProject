@@ -27,19 +27,27 @@ namespace dmp
 			return true;
 		}
 
-		/*
-		static inline bool ParseAlignment(const char* alignment, size_t kmerIterations, InternalKmer* kmers)
+		static inline std::string UnParseAlignment(std::vector< InternalKmer >& kmers)
+		{
+			static std::unordered_map< InternalKmer, char > kmerMap = {{0,'A'}, {1,'C'}, {2, 'T'}, {3, 'G'}};
+			std::string alignment;
+			for (auto& kmer : kmers)
 			{
-				for (auto i = 0; i < kmerIterations; ++i)
+				for (uint32_t i = 0; i < sizeof(kmer); ++i)
 				{
-					InternalKmer internalKmer = 0; // we must guarentee internalKmer is zero
-					bool validKmer = true;
-					validKmer &= unroller(i, uint_< KMER_SIZE - 1 >(),  alignment, internalKmer);
-					kmers[i] = internalKmer;
+					uint32_t shifter = i*8;
+					auto k1 = 0x3 & (kmer >> shifter);
+					auto k2 = 0x3 & (kmer >> shifter + 2);
+					auto k3 = 0x3 & (kmer >> shifter + 4);
+					auto k4 = 0x3 & (kmer >> shifter + 6);
+					alignment += kmerMap[k1];
+					alignment += kmerMap[k2];
+					alignment += kmerMap[k3];
+					alignment += kmerMap[k4];
 				}
-				return true;
 			}
-		*/
+			return alignment;
+		}
 
 	private:
 		static const InternalKmer ShiftByOne = 1; // these need to the same as InternalKmer

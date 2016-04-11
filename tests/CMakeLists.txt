@@ -9,7 +9,7 @@ set(DMP_TEST_SOURCES
   gtest_main.cpp
   )
 
-set(CMAKE_BUILD_TYPE Debug) # uncomment this when you need a debug build
+# set(CMAKE_BUILD_TYPE Debug) # uncomment this when you need a debug build
 
 # Where Google Test's .h files can be found.
 include_directories(

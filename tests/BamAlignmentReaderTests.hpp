@@ -4,6 +4,7 @@
 #include "config/DataConfig.h"
 #include "alignments/BamAlignmentReader.h"
 #include "alignments/AlignmentRegistration.h"
+#include "utils/ResultsPrinter.hpp"
 
 namespace
 {
@@ -13,10 +14,13 @@ namespace
 	{
 		std::string path = NA12878_BAM;
 		auto bamAlignmentReader = BamAlignmentReader::CreateSharedPtr(path);
-		bamAlignmentReader->processAllReadsInBam();
+		auto bamReadCount = bamAlignmentReader->processAllReadsInBam();
 		std::cout << "done reading" << std::endl;
-		AlignmentRegistration::Instance()->AggregateAlignmentsThreads(50);
-		std::cout << "count: " << AlignmentRegistration::Instance()->getSize() << std::endl;
+		auto alignmentCount = AlignmentRegistration::Instance()->AggregateAlignmentsThreads(0.3);
+		std::cout << "ac: " << alignmentCount << std::endl;
+		std::cout << "rc: " << bamReadCount << std::endl;
+		ResultsPrinter::printResults("match_0", AlignmentRegistration::Instance());
+		// std::cout << "count: " << AlignmentRegistration::Instance()->getSize() << std::endl;
 	}
 }
 

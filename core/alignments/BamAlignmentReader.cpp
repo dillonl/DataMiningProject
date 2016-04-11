@@ -66,17 +66,17 @@ namespace dmp
 		return regionPtrs;
 	}
 
-	void BamAlignmentReader::processAllReadsInBam()
+	uint32_t BamAlignmentReader::processAllReadsInBam()
 	{
+		uint32_t totalCount = 0;
 		ThreadPool tp;
 		auto spacedOutRegions = getAllSpacedOutRegions();
-		std::deque< std::shared_ptr< std::future< void > > > futureFunctions;
+		std::deque< std::shared_ptr< std::future< uint32_t > > > futureFunctions;
 		for (auto regionPtr : spacedOutRegions)
 		{
 			auto funct = std::bind(&BamAlignmentReader::processReads, this, regionPtr);
 			auto futureFunct = tp.enqueue(funct);
 			futureFunctions.emplace_back(futureFunct);
-			static int counter = 0;
 		}
 		while (!futureFunctions.empty())
 		{
@@ -84,6 +84,7 @@ namespace dmp
 			futureFunctions.pop_front();
 			if (futureFunct->wait_for(std::chrono::milliseconds(100)) == std::future_status::ready)
 			{
+				totalCount += futureFunct->get();
 				continue;
 			}
 			else
@@ -91,9 +92,10 @@ namespace dmp
 				futureFunctions.emplace_back(futureFunct);
 			}
 		}
+		return totalCount;
 	}
 
-	void BamAlignmentReader::processReads(BamRegion::SharedPtr bamRegionPtr)
+	uint32_t BamAlignmentReader::processReads(BamRegion::SharedPtr bamRegionPtr)
 	{
 		uint32_t counter = 0;
 		BamTools::BamReader bamReader;
@@ -108,7 +110,7 @@ namespace dmp
 		std::vector< InternalKmer > internalKmers(100);
 		size_t kmerCount = 0;
 
-		// uint32_t count = 0;
+		uint32_t count = 0;
 
 		while(bamReader.GetNextAlignment(*bamAlignmentPtr))
 		{
@@ -119,13 +121,15 @@ namespace dmp
 			{
                 // auto alignmentPtr = Alignment::CreateAlignment(bamAlignmentPtr->Position, KmerLookup::Instance()->getOptimalKmerSubset(internalKmers));
 				auto optimalKmerSubsets = KmerLookup::Instance()->getOptimalKmerSubset(internalKmers);
-				auto alignmentPtr = std::make_shared< Alignment >(bamAlignmentPtr->Position, optimalKmerSubsets);
+				auto alignmentPtr = std::make_shared< Alignment >(bamAlignmentPtr->Position, bamAlignmentPtr->IsMapped(), optimalKmerSubsets);
 				// auto alignmentPtr = Alignment::CreateAlignment(bamAlignmentPtr->Position, );
 				AlignmentRegistration::Instance()->RegisterAlignment(alignmentPtr);
 			}
-			// if (++count >= 50) { break; }
+			++count;
+			// if (count >= 50) { break; }
 		}
 		bamReader.Close();
+		return count;
 
 		// static std::mutex l;
 		// l.lock();

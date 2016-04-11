@@ -43,13 +43,13 @@ namespace dmp
         BamAlignmentReader(const std::string& filePath);
 		~BamAlignmentReader();
 
-		void processAllReadsInBam();
+		uint32_t processAllReadsInBam();
 		/* void processAllReadsInRegion(SparseKmerSet::SharedPtr kmerSetPtr); */
 
 		/* static std::vector< int > getAllRegionsInBam(const std::string& filePath); */
 
 	private:
-		void processReads(BamRegion::SharedPtr bamRegionPtr);
+		uint32_t processReads(BamRegion::SharedPtr bamRegionPtr);
 		std::vector< BamRegion::SharedPtr > getAllSpacedOutRegions();
 
 		std::string m_file_path;
