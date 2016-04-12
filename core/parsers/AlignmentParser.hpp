@@ -15,6 +15,9 @@ namespace dmp
 
 	class AlignmentParser : private boost::noncopyable
 	{
+	private:
+		static const InternalKmer ShiftByOne = 1; // these need to the same as InternalKmer
+		static const InternalKmer ShiftByThree = 3;
 	public:
 		static inline bool ParseAlignment(const char* alignment, size_t kmerIterations, std::vector< InternalKmer >& kmers)
 		{
@@ -49,9 +52,38 @@ namespace dmp
 			return alignment;
 		}
 
+		static inline std::string UnParseKmer(InternalKmer kmer)
+		{
+			static std::unordered_map< InternalKmer, char > kmerMap = {{0,'A'}, {1,'C'}, {2, 'T'}, {3, 'G'}};
+			std::string alignment;
+			for (uint32_t i = 0; i < sizeof(kmer); ++i)
+			{
+				uint32_t shifter = i*2;
+				auto k1 = 0x3 & (kmer >> shifter);
+				auto k2 = 0x3 & (kmer >> shifter + 2);
+				auto k3 = 0x3 & (kmer >> shifter + 4);
+				auto k4 = 0x3 & (kmer >> shifter + 6);
+				alignment += kmerMap[k1];
+				alignment += kmerMap[k2];
+				alignment += kmerMap[k3];
+				alignment += kmerMap[k4];
+			}
+			return alignment;
+		}
+
+		static inline InternalKmer ParseKmer(const std::string& kmerString)
+		{
+			InternalKmer kmer = 0;
+			for (auto i = 0; i < kmerString.size(); ++i)
+			{
+				char k = kmerString.c_str()[i];
+				uint32_t shifter = i*2;
+				kmer |= ((k >> ShiftByOne) & 0x3) << shifter;
+			}
+			return kmer;
+		}
+
 	private:
-		static const InternalKmer ShiftByOne = 1; // these need to the same as InternalKmer
-		static const InternalKmer ShiftByThree = 3;
 
 		AlignmentParser() = delete;
 		~AlignmentParser() = delete;

@@ -10,6 +10,11 @@ namespace dmp
 	typedef uint8_t InternalKmer;
 	typedef uint32_t position;
 
+	struct uint256_t
+	{
+		uint64_t bits[4];
+	};
+
 //#define KMER_SIZE 25ULL
 #define KMER_SIZE 4ULL
 #define KMER_SHIFTER_SIZE (KMER_SIZE * 2)

@@ -6,6 +6,7 @@
 #include <mutex>
 #include <vector>
 #include <string>
+#include <bitset>
 
 #include "utils/Types.h"
 
@@ -21,6 +22,7 @@ namespace dmp
 
 		virtual position getPosition() = 0;
 		virtual std::vector< InternalKmer > getOptimalKmerSubsets() = 0;
+		virtual std::bitset< 256 > getBitSet() = 0;
 
 	};
 }

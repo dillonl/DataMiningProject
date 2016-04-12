@@ -119,8 +119,8 @@ namespace dmp
 			if (kmersNumber > internalKmers.size()) { internalKmers.resize(kmersNumber); }
 			if (AlignmentParser::ParseAlignment(bamAlignmentPtr->QueryBases.c_str(), kmersNumber, internalKmers))
 			{
-                // auto alignmentPtr = Alignment::CreateAlignment(bamAlignmentPtr->Position, KmerLookup::Instance()->getOptimalKmerSubset(internalKmers));
 				auto optimalKmerSubsets = KmerLookup::Instance()->getOptimalKmerSubset(internalKmers);
+				// auto optimalKmerSubsets = KmerLookup::Instance()->getOptimalKmerSubsetOrdered(internalKmers);
 				auto alignmentPtr = std::make_shared< Alignment >(bamAlignmentPtr->Position, bamAlignmentPtr->IsMapped(), optimalKmerSubsets);
 				// auto alignmentPtr = Alignment::CreateAlignment(bamAlignmentPtr->Position, );
 				AlignmentRegistration::Instance()->RegisterAlignment(alignmentPtr);

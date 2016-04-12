@@ -64,31 +64,24 @@ namespace dmp
 
 	uint32_t AlignmentRegistration::AggregateAlignments(double matchPercent, InternalKmer kmer)
 	{
-		// std::lock_guard< std::mutex > l(m_lock);
 		size_t counter = 0;
 		std::unordered_set< InternalKmer > alignmentKmerSet;
 		std::vector< IAlignment::SharedPtr > alignmentList = this->m_alignment_ptrs[kmer];
 		for (size_t j = 0; j < alignmentList.size(); ++j)
 		{
 			auto a1 = alignmentList[j];
-			auto a1SubSet = a1->getOptimalKmerSubsets();
 			for (size_t k = (j + 1); k < alignmentList.size(); ++k)
 			{
 				auto a2 = alignmentList[k];
+
+				auto intersectSet = (a1->getBitSet() & a2->getBitSet());
+				auto unionSet = (a1->getBitSet() | a2->getBitSet());
+				auto jaccardScore = (double)intersectSet.count() / (double)unionSet.count();
+				if (jaccardScore < matchPercent) { continue; }
+				auto a1SubSet = a1->getOptimalKmerSubsets();
 				auto a2SubSet = a2->getOptimalKmerSubsets();
 
-				std::vector< InternalKmer > intersection(a1SubSet.size());
-				std::vector< InternalKmer > unionSet(a1SubSet.size() + a2SubSet.size());
-				std::unordered_set< InternalKmer > a1Set(a1SubSet.begin(), a1SubSet.end());
-				std::unordered_set< InternalKmer > a2Set(a2SubSet.begin(), a2SubSet.end());
-				auto iter1 = std::set_intersection(a1Set.begin(), a1Set.end(), a2Set.begin(), a2Set.end(), intersection.begin());
-				intersection.resize(iter1-intersection.begin());
-				auto iter2 = std::set_union(a1Set.begin(), a1Set.end(), a2Set.begin(), a2Set.end(), unionSet.begin());
-				unionSet.resize(iter2-unionSet.begin());
-
-				auto jacobScore = (double)intersection.size() / (double)unionSet.size();
-				if (jacobScore < matchPercent) { continue; }
-
+				/*
 				auto consecutiveRun = 0;
 				auto longestRun = 0;
 				for (auto x = 0; x < a1SubSet.size(); ++x)
@@ -107,12 +100,16 @@ namespace dmp
 					}
 				}
 				longestRun = (consecutiveRun > longestRun) ? consecutiveRun : longestRun;
-
 				double percent = ((double)longestRun / (double) a1SubSet.size());
-				if (percent >= matchPercent)
+				*/
+
+				// if (percent >= matchPercent)
+				if (jaccardScore >= matchPercent)
 				{
 					++counter;
-					m_alignments_percent.emplace_back(std::make_tuple(a1, a2, percent));
+					// m_alignments_percent.emplace_back(std::make_tuple(a1, a2, percent));
+					std::lock_guard< std::mutex > l(m_lock);
+					m_alignments_percent.emplace_back(std::make_tuple(a1, a2, jaccardScore));
 				}
 			}
 		}

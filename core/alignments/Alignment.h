@@ -27,11 +27,19 @@ namespace dmp
 		position getPosition() override { return this->m_position; }
 		std::vector< InternalKmer > getOptimalKmerSubsets() override { return this->m_optimal_kmer_subsets; }
 
+		std::bitset< 256 > getBitSet() override { return m_sparse_kmers; }
+
 	    Alignment(position pos, bool aligned, const std::vector< InternalKmer > optimalKmers) :
             m_position(pos),
 			m_is_aligned(aligned),
 	        m_optimal_kmer_subsets(optimalKmers)
 		{
+			static std::mutex m;
+			std::lock_guard< std::mutex > l(m);
+			for (auto kmer : optimalKmers)
+			{
+				m_sparse_kmers.set(kmer, true);
+			}
 		}
         ~Alignment() {}
 
@@ -39,6 +47,7 @@ namespace dmp
 		std::vector< InternalKmer > m_optimal_kmer_subsets;
 		position m_position;
 		bool m_is_aligned;
+		std::bitset< 256 > m_sparse_kmers;
 	};
 }
 
